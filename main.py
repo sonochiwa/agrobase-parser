@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import csv
+import time
 
 
 def get_all_districts():
@@ -42,7 +43,6 @@ def get_all_numbers(cities):
         data = soup.find_all('div', class_='ac-company')
 
         for company in data:
-            name = company.find('p').getText()
             details = company.select('.ac-company__details')
             for detail in details:
                 try:
@@ -50,22 +50,24 @@ def get_all_numbers(cities):
                     phone = label.next_sibling.text
                 except AttributeError:
                     phone = ''
-                info.append([name, phone])
+                info.append(phone)
     return info
 
 
 def write_data(numbers):
-    with open('agrobase.csv', 'w', encoding='UTF-8') as f:
-        writer = csv.writer(f, delimiter =';')
-        writer.writerows(numbers)
+    with open('agrobase.txt', 'w', encoding='UTF-8') as f:
+        for line in numbers:
+            f.write(line+'\n')
 
 
 def main():
+    start = time.time()
     districts = get_all_districts()
     cities = get_all_cities(districts)
     numbers = get_all_numbers(cities)
     write_data(numbers)
-
+    end = time.time() - start
+    print(end)
 
 if __name__ == '__main__':
     main()
